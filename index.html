@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University GPA Calculator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="logo.png">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 1rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            padding: 2.5rem; /* p-10 */
+            width: 100%;
+            max-width: 800px;
+        }
+        .input-field {
+            padding: 0.75rem 1rem; /* py-3 px-4 */
+            border: 1px solid #d1d5db; /* border-gray-300 */
+            border-radius: 0.5rem; /* rounded-lg */
+            font-size: 1rem; /* text-base */
+            width: 100%;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .input-field:focus {
+            border-color: #3b82f6; /* focus:border-blue-500 */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* focus:ring-blue-500/50 */
+        }
+        .btn {
+            padding: 0.75rem 1.5rem; /* py-3 px-6 */
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 600; /* font-semibold */
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: #ffffff; /* text-white */
+        }
+        .btn-primary:hover {
+            background-color: #2563eb; /* hover:bg-blue-600 */
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background-color: #e5e7eb; /* bg-gray-200 */
+            color: #4b5563; /* text-gray-700 */
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db; /* hover:bg-gray-300 */
+            transform: translateY(-1px);
+        }
+        .error-message {
+            color: #ef4444; /* text-red-500 */
+            font-size: 0.875rem; /* text-sm */
+            margin-top: 0.25rem; /* mt-1 */
+        }
+        .grade-input {
+            width: 100px; /* Fixed width for grade input */
+        }
+        @media (max-width: 640px) {
+            .container {
+                padding: 1.5rem; /* p-6 */
+            }
+            .btn {
+                width: 100%;
+                margin-top: 1rem;
+            }
+            .flex-col-sm {
+                flex-direction: column;
+            }
+            .flex-col-sm > * {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="container bg-white rounded-xl shadow-lg p-10 max-w-4xl w-full">
+        <div class="flex flex-row items-center mb-8">
+            <img src="logo.png" alt="SEUSL Logo" class="w-24 h-24 mr-6">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-gray-800">South Eastern University Of Sri Lanka</h1>
+                <h1 class="text-3xl font-bold text-gray-800">Faculty Of Engineering</h1>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div>
+                <label for="batchSelect" class="block text-gray-700 text-sm font-medium mb-2">Select Batch:</label>
+                <select id="batchSelect" class="input-field">
+                    <option value="">-- Select Batch --</option>
+                    <option value="E19">E19</option>
+                    <option value="E20">E20</option>
+                    <option value="E21">E21</option>
+                    <option value="E22">E22</option>
+                </select>
+            </div>
+            <div>
+                <label for="semesterSelect" class="block text-gray-700 text-sm font-medium mb-2">Select Semester:</label>
+                <select id="semesterSelect" class="input-field" disabled>
+                    <option value="">-- Select Semester --</option>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                    <option value="3">Semester 3</option>
+                    <option value="4">Semester 4</option>
+                    <option value="5">Semester 5</option>
+                    <option value="6">Semester 6</option>
+                    <option value="7">Semester 7</option>
+                    <option value="8">Semester 8</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="modulesContainer" class="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+            <p class="text-gray-600 text-center">Select a Batch and Semester to view modules.</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <button id="calculateGpaBtn" class="btn btn-primary flex-grow" disabled>Calculate GPA</button>
+            <button id="clearBtn" class="btn btn-secondary flex-grow">Clear All</button>
+        </div>
+
+        <div id="gpaResult" class="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-lg text-center hidden">
+            <p class="text-xl font-semibold text-blue-800">Your Calculated GPA:</p>
+            <p id="gpaValue" class="text-4xl font-bold text-blue-700 mt-2">0.00</p>
+        </div>
+
+        <!-- Custom Modal for Messages -->
+        <div id="messageModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
+            <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-4">
+                <h3 id="modalTitle" class="text-lg font-semibold text-gray-900 mb-4"></h3>
+                <p id="modalMessage" class="text-gray-700 mb-6"></p>
+                <div class="flex justify-end">
+                    <button id="closeModalBtn" class="btn btn-primary">OK</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Data structure for university modules
+        // Each batch has semesters, and each semester has a list of modules
+        // Each module has a code, name, and credits.
+        const universityData = {
+            "E19": {
+                "1": [
+                    { code: "EN101", name: "English I", credits: 2 },
+                    { code: "MA101", name: "Mathematics I", credits: 3 },
+                    { code: "PH101", name: "Physics I", credits: 3 },
+                    { code: "CH101", name: "Chemistry I", credits: 3 },
+                    { code: "CS101", name: "Introduction to Programming", credits: 4 }
+                ],
+                "2": [
+                    { code: "EN102", name: "English II", credits: 2 },
+                    { code: "MA102", name: "Mathematics II", credits: 3 },
+                    { code: "PH102", name: "Physics II", credits: 3 },
+                    { code: "CS102", name: "Data Structures & Algorithms", credits: 4 },
+                    { code: "EE101", name: "Basic Electrical Engineering", credits: 3 }
+                ],
+                "3": [
+                    { code: "MA201", name: "Differential Equations", credits: 3 },
+                    { code: "CS201", name: "Object-Oriented Programming", credits: 4 },
+                    { code: "EC201", name: "Electronics I", credits: 3 },
+                    { code: "ME201", name: "Engineering Mechanics", credits: 3 }
+                ],
+                "4": [
+                    { code: "MA202", name: "Numerical Methods", credits: 3 },
+                    { code: "CS202", name: "Database Management Systems", credits: 4 },
+                    { code: "EC202", name: "Electronics II", credits: 3 },
+                    { code: "CE201", name: "Fluid Mechanics", credits: 3 }
+                ],
+                "5": [
+                    { code: "CS301", name: "Operating Systems", credits: 4 },
+                    { code: "CS302", name: "Computer Networks", credits: 4 },
+                    { code: "EE301", name: "Control Systems", credits: 3 },
+                    { code: "ME301", name: "Thermodynamics", credits: 3 }
+                ],
+            },
+            "E20": {
+                "1": [
+                    { code: "CS1301", name: "Introduction to Computing", credits: 3 },
+                    { code: "EE1301", name: "Principles of Electrical Engineering", credits: 3 },
+                    { code: "ID1202", name: "English", credits: 2 },
+                    { code: "ID1301", name: "Mathematics- I", credits: 3 },
+                    { code: "ME1301", name: "Applied Mechanics ", credits: 3 },
+                    { code: "ME1302", name: "Engineering Drawing", credits: 3 }
+                ],
+                "2": [
+                    { code: "ME1303", name: "Engineering Materials and Processes", credits: 3 },
+                    { code: "EE1302", name: "Principles of Electronic Engineering", credits: 3 },
+                    { code: "ID1303", name: "Mathematics- II", credits: 3 },
+                    { code: "ME1304", name: "Thermodynamics and Fluid Mechanics", credits: 3 },
+                    { code: "ID1204", name: "Communication Skills for Engineers ", credits: 2 },
+                    { code: "CE1301", name: "Mechanics of Materials", credits: 3 }
+                    
+                ],
+                "3": [
+                    { code: "EE2201", name: "Electromagnetics", credits: 2},
+                    { code: "EE2202", name: "Electrical Circuit Analysis", credits: 2 },    
+                    { code: "EE2203", name: "Electrical Measurements", credits: 2 },
+                    { code: "EE2304", name: "Digital Electronics ", credits: 3 },
+                    { code: "EE2305", name: "Introduction to Telecommunications", credits: 3 },
+                    { code: "EE2306", name: "Theory of Electricity", credits: 3 },
+                    { code: "ID2301 ", name: "Differential Equations ", credits: 3 },
+                ],
+                "4": [
+                    { code: "CS2302", name: "Computer Architecture ", credits: 3 },
+                    { code: "EE2307", name: " Introduction to Electrical Machines and Power Systems ", credits: 3 },
+                    { code: "EE2308", name: "Analogue Electronics", credits: 3 },
+                    { code: "EE2309", name: "Signals and Systems", credits: 3 },
+                    { code: "ID2302", name: "Probability and Statistics for Engineers ", credits: 3 },
+                    { code: "ID2303", name: "Industrial Management I", credits: 3 },
+                    { code: "ID5211", name: "Climate Change", credits: 2 }
+                   
+                ]            
+            },
+               "E21": {
+                "1": [
+                    { code: "CS1301", name: "Introduction to Computing", credits: 3 },
+                    { code: "EE1301", name: "Principles of Electrical Engineering", credits: 3 },
+                    { code: "ID1202", name: "English", credits: 2 },
+                    { code: "ID1301", name: "Mathematics- I", credits: 3 },
+                    { code: "ME1301", name: "Applied Mechanics ", credits: 3 },
+                    { code: "ME1302", name: "Engineering Drawing", credits: 3 }
+                ],
+                "2": [
+                    { code: "ME1303", name: "Engineering Materials and Processes", credits: 3 },
+                    { code: "EE1302", name: "Principles of Electronic Engineering", credits: 3 },
+                    { code: "ID1303", name: "Mathematics- II", credits: 3 },
+                    { code: "ME1304", name: "Thermodynamics and Fluid Mechanics", credits: 3 },
+                    { code: "ID1204", name: "Communication Skills for Engineers ", credits: 2 },
+                    { code: "CE1301", name: "Mechanics of Materials", credits: 3 }
+                    
+                ],
+                "3": [
+                    { code: "EE2201", name: "Electromagnetics", credits: 2},
+                    { code: "EE2202", name: "Electrical Circuit Analysis", credits: 2 },    
+                    { code: "EE2203", name: "Electrical Measurements", credits: 2 },
+                    { code: "EE2304", name: "Digital Electronics ", credits: 3 },
+                    { code: "EE2305", name: "Introduction to Telecommunications", credits: 3 },
+                    { code: "EE2306", name: "Theory of Electricity", credits: 3 },
+                    { code: "ID2301 ", name: "Differential Equations ", credits: 3 },
+                ]   
+              },
+                 "E22": {
+                "1": [
+                    { code: "CS1301", name: "Introduction to Computing", credits: 3 },
+                    { code: "EE1301", name: "Principles of Electrical Engineering", credits: 3 },
+                    { code: "ID1202", name: "English", credits: 2 },
+                    { code: "ID1301", name: "Mathematics- I", credits: 3 },
+                    { code: "ME1301", name: "Applied Mechanics ", credits: 3 },
+                    { code: "ME1302", name: "Engineering Drawing", credits: 3 }
+                ],
+                    
+              }
+            };
+
+        // Grade point conversion mapping
+        const gradePoints = {
+            "A+": 4.0, "A": 4.0, "A-": 3.7,
+            "B+": 3.3, "B": 3.0, "B-": 2.7,
+            "C+": 2.3, "C": 2.0, "C-": 1.7,
+            "D+": 1.3, "D": 1.0,
+            "F": 0.0
+        };
+
+        // Get DOM elements
+        const batchSelect = document.getElementById('batchSelect');
+        const semesterSelect = document.getElementById('semesterSelect');
+        const modulesContainer = document.getElementById('modulesContainer');
+        const calculateGpaBtn = document.getElementById('calculateGpaBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const gpaResultDiv = document.getElementById('gpaResult');
+        const gpaValueSpan = document.getElementById('gpaValue');
+
+        // Modal elements
+        const messageModal = document.getElementById('messageModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+
+        // Function to show custom modal
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            messageModal.classList.remove('hidden');
+        }
+
+        // Function to hide custom modal
+        function hideModal() {
+            messageModal.classList.add('hidden');
+        }
+
+        // Event listener for closing the modal
+        closeModalBtn.addEventListener('click', hideModal);
+
+        // Function to update modules display based on selected batch and semester
+        function updateModules() {
+            const selectedBatch = batchSelect.value;
+            const selectedSemester = semesterSelect.value;
+            modulesContainer.innerHTML = ''; // Clear previous modules
+
+            if (selectedBatch && selectedSemester) {
+                if (!universityData[selectedBatch] || !universityData[selectedBatch][selectedSemester]) {
+                    modulesContainer.innerHTML = '<p class="text-red-600 text-center font-semibold">Results not released.</p>';
+                    calculateGpaBtn.disabled = true;
+                    gpaResultDiv.classList.add('hidden');
+                    return;
+                }
+                const modules = universityData[selectedBatch][selectedSemester];
+                if (!modules || modules.length === 0) {
+                    modulesContainer.innerHTML = '<p class="text-red-600 text-center font-semibold">Results not released.</p>';
+                    calculateGpaBtn.disabled = true;
+                    gpaResultDiv.classList.add('hidden');
+                    return;
+                }
+
+                let modulesHtml = `
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 text-center">Modules for ${selectedBatch} - Semester ${selectedSemester}</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                `;
+                modules.forEach((module, index) => {
+                    modulesHtml += `
+                        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                            <div class="flex-1 mr-4">
+                                <p class="font-medium text-gray-800">${module.name} <span class="text-sm text-gray-500">(${module.code})</span></p>
+                                <p class="text-sm text-gray-600">Credits: ${module.credits}</p>
+                            </div>
+                            <div class="w-24">
+                                <label for="grade-${index}" class="sr-only">Grade for ${module.name}</label>
+                                <select id="grade-${index}" data-credits="${module.credits}"
+                                        class="input-field grade-input text-center uppercase">
+                                    <option value="">Select</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A">A</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B">B</option>
+                                    <option value="B-">B-</option>
+                                    <option value="C+">C+</option>
+                                    <option value="C">C</option>
+                                    <option value="C-">C-</option>
+                                    <option value="D+">D+</option>
+                                    <option value="D">D</option>
+                                    <option value="F">F</option>
+                                </select>
+                                <p id="error-grade-${index}" class="error-message hidden"></p>
+                            </div>
+                        </div>
+                    `;
+                });
+                modulesHtml += `</div>`;
+                modulesContainer.innerHTML = modulesHtml;
+                calculateGpaBtn.disabled = false; // Enable calculate button
+            } else {
+                modulesContainer.innerHTML = '<p class="text-gray-600 text-center">Select a Batch and Semester to view modules.</p>';
+                calculateGpaBtn.disabled = true; // Disable calculate button
+                gpaResultDiv.classList.add('hidden');
+            }
+        }
+
+        // Event listener for batch selection change
+        batchSelect.addEventListener('change', () => {
+            semesterSelect.disabled = !batchSelect.value; // Enable/disable semester select
+            semesterSelect.value = ""; // Reset semester selection
+            updateModules(); // Update modules display
+        });
+
+        // Event listener for semester selection change
+        semesterSelect.addEventListener('change', updateModules);
+
+        // Function to validate a single grade input
+        function validateGrade(grade) {
+            return gradePoints.hasOwnProperty(grade);
+        }
+
+        // Event listener for calculate GPA button
+        calculateGpaBtn.addEventListener('click', () => {
+            let totalGradePoints = 0;
+            let totalCredits = 0;
+            let hasError = false;
+
+            const gradeInputs = modulesContainer.querySelectorAll('select[id^="grade-"]');
+            if (gradeInputs.length === 0) {
+                showModal("No Modules", "Please select a batch and semester with modules to calculate GPA.");
+                return;
+            }
+
+            gradeInputs.forEach((input, index) => {
+                const grade = input.value.trim();
+                const credits = parseFloat(input.dataset.credits);
+                const errorElement = document.getElementById(`error-grade-${index}`);
+
+                if (!grade) {
+                    errorElement.textContent = "Grade required.";
+                    errorElement.classList.remove('hidden');
+                    hasError = true;
+                    input.classList.add('border-red-500');
+                } else if (!validateGrade(grade)) {
+                    errorElement.textContent = "Invalid grade.";
+                    errorElement.classList.remove('hidden');
+                    hasError = true;
+                    input.classList.add('border-red-500');
+                } else {
+                    errorElement.classList.add('hidden');
+                    input.classList.remove('border-red-500');
+                    totalGradePoints += gradePoints[grade] * credits;
+                    totalCredits += credits;
+                }
+            });
+
+            if (hasError) {
+                showModal("Input Error", "Please correct the invalid or missing grades before calculating.");
+                gpaResultDiv.classList.add('hidden');
+                return;
+            }
+
+            if (totalCredits === 0) {
+                showModal("Calculation Error", "No credits found. Please ensure modules are selected and have valid credits.");
+                gpaResultDiv.classList.add('hidden');
+                return;
+            }
+
+            const gpa = totalGradePoints / totalCredits;
+            gpaValueSpan.textContent = gpa.toFixed(2); // Display GPA with 2 decimal places
+            gpaResultDiv.classList.remove('hidden'); // Show GPA result div
+        });
+
+        // Event listener for clear button
+        clearBtn.addEventListener('click', () => {
+            batchSelect.value = "";
+            semesterSelect.value = "";
+            semesterSelect.disabled = true;
+            modulesContainer.innerHTML = '<p class="text-gray-600 text-center">Select a Batch and Semester to view modules.</p>';
+            gpaResultDiv.classList.add('hidden');
+            calculateGpaBtn.disabled = true;
+            gpaValueSpan.textContent = "0.00";
+        });
+
+        // Initial call to set up the UI
+        updateModules();
+    </script>
+</body>
+</html>
