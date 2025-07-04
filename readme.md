@@ -2,8 +2,6 @@
 
 A web application for calculating GPA (Grade Point Average) for students of South Eastern University of Sri Lanka, Faculty of Engineering.
 
-![Screenshot of the GPA Calculator](screenshot.png)
-
 ## Features
 
 - Select your batch (E19, E20, E21, E22)
