@@ -1,7 +1,7 @@
 # University GPA Calculator
 
 A web application for calculating GPA (Grade Point Average) for students of South Eastern University of Sri Lanka, Faculty of Engineering.
- https://mithushan03.github.io/gpa.github.io/
+ [https://mithushan03.github.io/gpa.github.io/](https://mithushan03.github.io/gpa_cal/)
 
 ## Features
 
